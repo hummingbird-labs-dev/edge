@@ -9,12 +9,21 @@ on:
 jobs:
   deploy-caddy-file:
     runs-on: self-hosted
-    env:
-      CADDY_SSH_HOST: ${{ secrets.CADDY_SSH_HOST }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Extract CADDY_SSH_HOST
+        env:
+          CADDY_ENV: ${{ secrets.CADDY_ENV }}
+        run: |
+          HOST=$(printf '%s\n' "$CADDY_ENV" | grep -E '^CADDY_SSH_HOST=' | cut -d= -f2-)
+          if [ -z "$HOST" ]; then
+            echo "CADDY_SSH_HOST not found in CADDY_ENV secret" >&2
+            exit 1
+          fi
+          echo "CADDY_SSH_HOST=$HOST" >> "$GITHUB_ENV"
 
       - name: Deploy Caddy environment
         env:
