@@ -6,11 +6,10 @@ that configuration to the self-hosted edge server.
 
 ## What this repository contains
 
-- **`/home/runner/work/edge/edge/Caddyfile`** — the reverse proxy and TLS
-  configuration for external and LAN traffic
-- **`/home/runner/work/edge/edge/.github/workflows/ci-cd.yml`** — the workflow
-  that ships the `Caddyfile` and environment file to the server, validates the
-  config, and restarts Caddy
+- **`Caddyfile`** — the reverse proxy and TLS configuration for external and
+  LAN traffic
+- **`.github/workflows/ci-cd.yml`** — the workflow that ships the `Caddyfile`
+  and environment file to the server, validates the config, and restarts Caddy
 
 ## Routing overview
 
