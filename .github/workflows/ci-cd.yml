@@ -1,0 +1,37 @@
+name: Deploy Caddyfile
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy-caddy-file:
+    runs-on: self-hosted
+    env:
+      CADDY_SSH_HOST: ${{ secrets.CADDY_SSH_HOST }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy Caddy environment
+        env:
+          CADDY_ENV: ${{ secrets.CADDY_ENV }}
+        run: |
+          printf '%s\n' "$CADDY_ENV" |
+            ssh -i ~/.ssh/id_ed25519 root@${CADDY_SSH_HOST} \
+              'umask 077 && cat > /etc/caddy/caddy.env'
+
+      - name: Load Caddyfile
+        run: |
+          scp -i ~/.ssh/id_ed25519 Caddyfile "root@${CADDY_SSH_HOST}:/etc/caddy/Caddyfile"
+
+      - name: Validate Caddyfile
+        run: |
+          ssh -i ~/.ssh/id_ed25519 "root@${CADDY_SSH_HOST}" caddy validate --config /etc/caddy/Caddyfile --envfile /etc/caddy/caddy.env
+
+      - name: Restart Caddy
+        run: |
+          ssh -i ~/.ssh/id_ed25519 "root@${CADDY_SSH_HOST}" systemctl restart caddy

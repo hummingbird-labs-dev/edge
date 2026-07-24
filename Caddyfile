@@ -1,0 +1,51 @@
+# Caddy configuration
+{
+  email ${CADDY_EMAIL}
+  servers {
+      metrics
+  }
+}
+
+{$EXTERNAL_DOMAIN} {
+  tls {
+      dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+  }
+  respond "Hello from hummingbirdlabs.dev!"
+}
+
+*.{$EXTERNAL_DOMAIN} {
+  tls {
+      dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+  }
+  abort
+}
+
+homeassistant.{$EXTERNAL_DOMAIN} {
+  reverse_proxy ${HOMEASSISTANT_UPSTREAM}
+}
+
+*.{$LAN_DOMAIN} {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    abort
+}
+
+caddy.{$LAN_DOMAIN} {
+  metrics
+}
+monitoring.{$LAN_DOMAIN} {
+  reverse_proxy {$MONITORING_UPSTREAM}
+}
+grafana.{$LAN_DOMAIN} {
+  reverse_proxy {$MONITORING_UPSTREAM}
+}
+prometheus.{$LAN_DOMAIN} {
+  reverse_proxy {$PROMETHEUS_UPSTREAM}
+}
+homeassistant.{$LAN_DOMAIN} {
+  reverse_proxy {$HOMEASSISTANT_UPSTREAM}
+}
+container-registry.{$LAN_DOMAIN} {
+  reverse_proxy {$CONTAINER_REGISTRY_UPSTREAM}
+}
