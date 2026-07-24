@@ -1,6 +1,6 @@
 # Caddy configuration
 {
-  email ${CADDY_EMAIL}
+  email {$CADDY_EMAIL}
   servers {
       metrics
   }
