@@ -20,7 +20,7 @@
   abort
 }
 
-homeassistant.{$EXTERNAL_DOMAIN} {
+{$HOMEASSISTANT_SUBDOMAIN}.{$EXTERNAL_DOMAIN} {
   reverse_proxy {$HOMEASSISTANT_UPSTREAM}
 }
 
@@ -38,21 +38,21 @@ test.{$LAN_DOMAIN}:443 {
   respond "Hello from test.{$LAN_DOMAIN} over HTTPS!"
 }
 
-caddy.{$LAN_DOMAIN} {
+{$CADDY_SUBDOMAIN}.{$LAN_DOMAIN} {
   metrics
 }
-monitoring.{$LAN_DOMAIN} {
+{$MONITORING_SUBDOMAIN}.{$LAN_DOMAIN} {
   reverse_proxy {$MONITORING_UPSTREAM}
 }
-grafana.{$LAN_DOMAIN} {
-  reverse_proxy {$MONITORING_UPSTREAM}
+{$GRAFANA_SUBDOMAIN}.{$LAN_DOMAIN} {
+  reverse_proxy {$GRAFANA_UPSTREAM}
 }
-prometheus.{$LAN_DOMAIN} {
+{$PROMETHEUS_SUBDOMAIN}.{$LAN_DOMAIN} {
   reverse_proxy {$PROMETHEUS_UPSTREAM}
 }
-homeassistant.{$LAN_DOMAIN} {
+{$HOMEASSISTANT_SUBDOMAIN}.{$LAN_DOMAIN} {
   reverse_proxy {$HOMEASSISTANT_UPSTREAM}
 }
-container-registry.{$LAN_DOMAIN} {
-  reverse_proxy {$CONTAINER_REGISTRY_UPSTREAM}
+{$REGISTRY_SUBDOMAIN}.{$LAN_DOMAIN} {
+  reverse_proxy {$REGISTRY_UPSTREAM}
 }
