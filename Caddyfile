@@ -21,7 +21,7 @@
 }
 
 homeassistant.{$EXTERNAL_DOMAIN} {
-  reverse_proxy ${HOMEASSISTANT_UPSTREAM}
+  reverse_proxy {$HOMEASSISTANT_UPSTREAM}
 }
 
 *.{$LAN_DOMAIN} {
@@ -29,6 +29,10 @@ homeassistant.{$EXTERNAL_DOMAIN} {
         dns cloudflare {env.CLOUDFLARE_API_TOKEN}
     }
     abort
+}
+
+test.{$LAN_DOMAIN} {
+  respond "Hello from test.{$LAN_DOMAIN}!"
 }
 
 caddy.{$LAN_DOMAIN} {
