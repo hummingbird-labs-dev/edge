@@ -31,8 +31,11 @@ homeassistant.{$EXTERNAL_DOMAIN} {
     abort
 }
 
-test.{$LAN_DOMAIN} {
-  respond "Hello from test.{$LAN_DOMAIN}!"
+test.{$LAN_DOMAIN}:80 {
+  respond "Hello from test.{$LAN_DOMAIN} over HTTP!"
+}
+test.{$LAN_DOMAIN}:443 {
+  respond "Hello from test.{$LAN_DOMAIN} over HTTPS!"
 }
 
 caddy.{$LAN_DOMAIN} {
