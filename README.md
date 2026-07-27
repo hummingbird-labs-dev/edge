@@ -1,15 +1,13 @@
 # edge
 
 Edge is the infrastructure repository for the Hummingbird Labs Caddy edge proxy.
-It stores the canonical `Caddyfile` and the GitHub Actions workflow that deploys
-that configuration to the self-hosted edge server.
+It stores the canonical `Caddyfile` that the Caddy container pulls from
+automatically.
 
 ## What this repository contains
 
 - **`Caddyfile`** — the reverse proxy and TLS configuration for external and
   LAN traffic
-- **`.github/workflows/ci-cd.yml`** — the workflow that ships the `Caddyfile`
-  and environment file to the server, validates the config, and restarts Caddy
 
 ## Routing overview
 
@@ -25,27 +23,29 @@ This edge configuration currently handles:
 
 External TLS certificates are issued through Cloudflare DNS challenge.
 
-## Deployment flow
+## Deployment flow (Pull-Based)
 
-On every push to `main` (or when run manually), GitHub Actions:
+The Caddy container runs a polling agent (deployed via the
+[configuration](../configuration) repository) that:
 
-1. checks out the repository
-2. writes the Caddy environment file on the target server
-3. copies the `Caddyfile` to `/etc/caddy/Caddyfile`
-4. validates the configuration with `caddy validate`
-5. restarts the Caddy service
+1. Checks this GitHub repository for changes to the `Caddyfile` every 5 minutes
+2. Pulls the latest `Caddyfile` when changes are detected
+3. Validates the configuration against the existing environment variables
+4. Reloads the Caddy service with the new configuration
 
-## Required secrets
+### How to deploy changes
 
-The deployment workflow depends on these GitHub secrets:
+Simply push changes to the `Caddyfile` on the `main` branch. The polling agent
+will detect and apply them automatically within 5 minutes.
 
-| Secret | Purpose |
-| --- | --- |
-| `CADDY_SSH_HOST` | SSH host for the self-hosted edge server |
-| `CADDY_ENV` | Environment file contents written to `/etc/caddy/caddy.env` |
+## Configuration management
 
-The deployed environment file must define the values referenced in
-`Caddyfile`, including:
+The Caddy container's environment variables are managed separately via the
+[configuration](../configuration) repository and the Ansible playbook
+(`playbooks/caddy.yml`).
+
+The environment file (`/etc/caddy/caddy.env`) must define the values referenced
+in the `Caddyfile`, including:
 
 - `CADDY_EMAIL`
 - `EXTERNAL_DOMAIN`
@@ -56,9 +56,22 @@ The deployed environment file must define the values referenced in
 - `PROMETHEUS_UPSTREAM`
 - `CONTAINER_REGISTRY_UPSTREAM`
 
+## Polling agent
+
+The Caddy Pull Agent is maintained in the
+[configuration](../configuration) repository:
+
+- **Script:** `scripts/caddy-pull-agent.sh` — pulls the Caddyfile and reloads Caddy
+- **Systemd service:** `systemd/caddy-pull-agent.service` — manages the service
+- **Systemd timer:** `systemd/caddy-pull-agent.timer` — runs the agent every 5 minutes
+- **Ansible task:** `shared-tasks/caddy-pull-agent-deploy.yml` — deploys the agent
+
+See the configuration repository's `playbooks/caddy.yml` for deployment
+instructions.
+
 ## Local validation
 
-Before shipping changes, validate the config locally with Caddy:
+Before pushing changes, validate the config locally with Caddy:
 
 ```sh
 caddy validate --config Caddyfile --envfile /path/to/caddy.env
