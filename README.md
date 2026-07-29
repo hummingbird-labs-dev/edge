@@ -56,6 +56,16 @@ in the `Caddyfile`, including:
 - `PROMETHEUS_UPSTREAM`
 - `CONTAINER_REGISTRY_UPSTREAM`
 
+### Deploying the environment file
+
+To securely copy the environment file to the Caddy container:
+
+```sh
+scp .env <container-host>:/etc/caddy/caddy.env
+```
+
+Replace `<container-host>` with the target host or container address (e.g., `user@caddy-host` or `172.17.0.2`).
+
 ## Polling agent
 
 The Caddy Pull Agent is maintained in the
